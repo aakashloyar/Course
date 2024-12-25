@@ -1,16 +1,35 @@
 const express=require('express');
 const UserRouter=express.Router();
 const User=require('../db/index');
+const jwt=require('jsonwebtoken');
+const secert=process.env.JWT_SECRET;
 UserRouter.get('/',(req,res)=>{
     res.send('This is user page');
 })
+
+function createjwt(email,password) {
+    const payload={
+        email,
+        password
+    }
+    return jwt.sign(payload,secert,{expiresIn:'1h'});
+}
+
+function decodejwt(token) {
+    //token+='a';
+    //token='a'+token;
+    //const data=jwt.decode(token);
+    //console.log(data);
+    const verified=jwt.verify(token,secert);
+    console.log(verified);
+}
 
 async function ratelimitter(req,res,next) {
     console.log("hi");
     const email=await req.body.email;
     const user=await User.findOne({email});
     if(!user) {
-        res.send('User not found');
+        next();
         return;
     }
     if(user.requestspersec>=5) {
@@ -56,6 +75,9 @@ UserRouter.post('/createuser',async (req,res)=>{
         password
     })
     await user.save();
+    const token=createjwt(email,password);
+    decodejwt(token);
+    console.log(token);
     res.send("User created successfully");
 })
 
