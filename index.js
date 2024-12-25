@@ -11,7 +11,7 @@ const UserRouter=require('./routes/User');
 let request=0;
 function reqcount(req,res,next) {
     request++;
-    console.log(request);
+    //console.log(request);
     next();//next is used to pass control to the next middleware function
 }
 app.get('/reqcount',(req,res)=>{
@@ -24,7 +24,7 @@ app.get('/',(req,res)=>{
     res.send('Hello world');
 })
 
-
+mongoose.connect(mongouri);
 
 app.listen(port,()=>{
     console.log(`Server is running on port ${port}`);
